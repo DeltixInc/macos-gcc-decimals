@@ -1,0 +1,33 @@
+name: Build GCC
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [master]
+
+jobs:
+  build:
+    name: Build GCC
+    runs-on: macos-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          submodules: 'recursive' 
+      - name: Download pre-requisites
+        run: gcc/contrib/download_prerequisites
+      - name: Configure GCC
+        run: 
+          mkdir build && cd build
+          ../gcc/configure --prefix=gcc-10 \
+            --enable-checking=release \
+            --enable-languages=c,c++,fortran \
+            --with-sysroot=/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk \
+            --program-suffix=-10
+          tree ../
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          path: |
+            build
+          name: Build

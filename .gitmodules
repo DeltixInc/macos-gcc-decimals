@@ -1,0 +1,5 @@
+[submodule "gcc"]
+	path = gcc
+	url = git://gcc.gnu.org/git/gcc.git
+	branch = releases/gcc-10
+
