@@ -15,19 +15,23 @@ jobs:
         with:
           submodules: 'recursive' 
       - name: Download pre-requisites
-        run: gcc/contrib/download_prerequisites
+        run: cd gcc && contrib/download_prerequisites
       - name: Configure GCC
-        run: 
-          mkdir build && cd build
-          ../gcc/configure --prefix=gcc-10 \
+        run: |
+          mkdir gcc/build && cd gcc/build
+          ../configure --prefix=/usr/local/gcc-10 \
             --enable-checking=release \
             --enable-languages=c,c++,fortran \
+            --enable-decimal-float=bid
             --with-sysroot=/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk \
             --program-suffix=-10
-          tree ../
+      - name: Build gcc
+        run: |
+          cd gcc/build
+          make -j 8
       - name: Upload artifacts
         uses: actions/upload-artifact@v2
         with:
           path: |
-            build
+            gcc/build
           name: Build
