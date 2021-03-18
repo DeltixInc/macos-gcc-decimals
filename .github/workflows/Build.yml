@@ -28,7 +28,7 @@ jobs:
       - name: Build GCC
         run: |
           cd gcc/build
-          make -j 8
+          make -j 8 CC=gcc-10
       - name: Upload artifacts
         uses: actions/upload-artifact@v2
         with:
