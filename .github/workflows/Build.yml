@@ -15,33 +15,65 @@ jobs:
         with:
           submodules: 'recursive' 
       - name: Install tools
-        run: brew install coreutils
-      - name: Download pre-requisites
-        run: cd gcc && contrib/download_prerequisites
-      # - name: Build GMP without Decimal Support
-      #   run: |
-      #     mkdir install
-      #     mkdir gcc/gmp/build/
-      #     cd gcc/gmp/build         
-      #     ../configure \
-      #       --disable-shared \
-      #       --enable-static \
-      #       --prefix=$(grealpath ../../install) \
-      #       CC=/usr/local/bin/gcc-8 \
-      #       CXX=/usr/local/bin/g++-8          
-      #     make && make check && make install
-      # - name: Build MPFR without Decimal Support
-      #   run: |
-      #     mkdir gcc/mpfr/build/
-      #     cd gcc/mpfr/build
-      #     ../configure \
-      #       --disable-shared \
-      #       --enable-static \
-      #       --prefix=$(grealpath ../../install) \
-      #       --with-gmp=$(grealpath ../../install) \
-      #       CC=/usr/local/bin/gcc-8 \
-      #       CXX=/usr/local/bin/g++-8
-      #     make && make check && make install
+        run: brew install coreutils && mkdir install
+      - name: Build GMP without Decimal Support
+        env:
+          GMP_VER: 6.1.0
+        run: |
+          wget http://gcc.gnu.org/pub/gcc/infrastructure/gmp-$GMP_VER.tar.bz2
+          bunzip2 gmp-$GMP_VER.tar.bz2
+          tar xvf gmp-$GMP_VER.tar
+          cd gmp-$GMP_VER         
+          ./configure \
+            --enable-static \
+            --prefix=$(grealpath ../install) \
+            CC=/usr/local/bin/gcc-8 \
+            CXX=/usr/local/bin/g++-8          
+          make -j && make check && make install
+      - name: Build MPFR without Decimal Support
+        env:
+          MPFR_VER: 3.1.4
+        run: |
+          wget http://gcc.gnu.org/pub/gcc/infrastructure/mpfr-$MPFR_VER.tar.bz2
+          bunzip2 mpfr-$MPFR_VER.tar.bz2
+          tar xvf mpfr-$MPFR_VER.tar
+          cd mpfr-$MPFR_VER         
+          ./configure \
+            --enable-static \
+            --prefix=$(grealpath ../install) \
+            --with-gmp=$(grealpath ../install) \
+            CC=/usr/local/bin/gcc-8 \
+            CXX=/usr/local/bin/g++-8          
+          make -j && make check && make install
+      - name: Build MPC without Decimal Support
+        env:
+          MPC_VER: 1.0.3
+        run: |
+          wget http://gcc.gnu.org/pub/gcc/infrastructure/mpc-$MPC_VER.tar.gz
+          tar zxvf mpc-$MPC_VER.tar.gz
+          cd mpc-$MPC_VER         
+          ./configure \
+            --enable-static \
+            --prefix=$(grealpath ../install) \
+            --with-gmp=$(grealpath ../install) \
+            CC=/usr/local/bin/gcc-8 \
+            CXX=/usr/local/bin/g++-8          
+          make -j && make check && make install
+      - name: Build ISL without Decimal Support
+        env:
+          ISL_VER: 0.18
+        run: |
+          wget http://gcc.gnu.org/pub/gcc/infrastructure/isl-$ISL_VER.tar.bz2
+          bunzip2 isl-$ISL_VER.tar.bz2
+          tar xvf isl-$ISL_VER.tar
+          cd isl-$ISL_VER         
+          ./configure \
+            --enable-static \
+            --prefix=$(grealpath ../install) \
+            --with-gmp_prefix=$(grealpath ../install) \
+            CC=/usr/local/bin/gcc-8 \
+            CXX=/usr/local/bin/g++-8          
+          make -j && make check && make install
       - name: Configure GCC
         run: |
           mkdir gcc/build && cd gcc/build
@@ -49,7 +81,11 @@ jobs:
           ../configure \
             --disable-bootstrap \
             --enable-static \
-            --prefix=/usr/local/gcc-10dfp \
+            --prefix=$(grealpath ../../install) \
+            --with-gmp=$(grealpath ../../install) \
+            --with-mpfr=$(grealpath ../../install) \
+            --with-mpc_=$(grealpath ../../install) \
+            --with-isl=$(grealpath ../../install) \
             --enable-checking=release \
             --enable-languages=c,c++ \
             --enable-decimal-float \
@@ -60,9 +96,14 @@ jobs:
       - name: Build GCC
         run: |
           cd gcc/build
-          make -j 1 && make install
-      - name: Upload artifacts
+          make -j && make install
+      - name: Upload build
+        uses: actions/upload-artifact@v2
+        with:
+          path: gcc/build/
+          name: Build
+      - name: Upload install
         uses: actions/upload-artifact@v2
         with:
           path: install/
-          name: Build
+          name: Install
