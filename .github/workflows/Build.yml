@@ -19,16 +19,19 @@ jobs:
       - name: Configure GCC
         run: |
           mkdir gcc/build && cd gcc/build
+          echo "DFP_ENABLE = 1" >> ../libgcc/Makefile.in
           ../configure --prefix=/usr/local/gcc-10 \
             --enable-checking=release \
             --enable-languages=c,c++,fortran \
             --enable-decimal-float=yes \
             --with-sysroot=$(xcrun --show-sdk-path)/ \
-            --program-suffix=-10
+            --program-suffix=-10 \
+            CC=/usr/local/bin/gcc-10 \
+            CXX=/usr/local/bin/g++-10
       - name: Build GCC
         run: |
           cd gcc/build
-          make -j 8 CC=gcc-10
+          make -j
       - name: Upload artifacts
         uses: actions/upload-artifact@v2
         with:
