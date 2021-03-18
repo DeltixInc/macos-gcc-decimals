@@ -14,13 +14,42 @@ jobs:
         uses: actions/checkout@v2
         with:
           submodules: 'recursive' 
+      - name: Install tools
+        run: brew install coreutils
       - name: Download pre-requisites
         run: cd gcc && contrib/download_prerequisites
+      # - name: Build GMP without Decimal Support
+      #   run: |
+      #     mkdir install
+      #     mkdir gcc/gmp/build/
+      #     cd gcc/gmp/build         
+      #     ../configure \
+      #       --disable-shared \
+      #       --enable-static \
+      #       --prefix=$(grealpath ../../install) \
+      #       CC=/usr/local/bin/gcc-8 \
+      #       CXX=/usr/local/bin/g++-8          
+      #     make && make check && make install
+      # - name: Build MPFR without Decimal Support
+      #   run: |
+      #     mkdir gcc/mpfr/build/
+      #     cd gcc/mpfr/build
+      #     ../configure \
+      #       --disable-shared \
+      #       --enable-static \
+      #       --prefix=$(grealpath ../../install) \
+      #       --with-gmp=$(grealpath ../../install) \
+      #       CC=/usr/local/bin/gcc-8 \
+      #       CXX=/usr/local/bin/g++-8
+      #     make && make check && make install
       - name: Configure GCC
         run: |
           mkdir gcc/build && cd gcc/build
           echo "DFP_ENABLE = 1" >> ../libgcc/Makefile.in
-          ../configure --prefix=/usr/local/gcc-10dfp \
+          ../configure \
+            --disable-bootstrap \
+            --enable-static \
+            --prefix=/usr/local/gcc-10dfp \
             --enable-checking=release \
             --enable-languages=c,c++ \
             --enable-decimal-float \
@@ -31,10 +60,9 @@ jobs:
       - name: Build GCC
         run: |
           cd gcc/build
-          make -j 1
+          make -j 1 && make install
       - name: Upload artifacts
         uses: actions/upload-artifact@v2
         with:
-          path: |
-            gcc/build
+          path: install/
           name: Build
