@@ -18,12 +18,11 @@ jobs:
         run: cd gcc && contrib/download_prerequisites
       - name: Configure GCC
         run: |
-          ls -la $(dirname $(xcrun --show-sdk-path))
           mkdir gcc/build && cd gcc/build
           ../configure --prefix=/usr/local/gcc-10 \
             --enable-checking=release \
             --enable-languages=c,c++,fortran \
-            --enable-decimal-float=bid
+            --enable-decimal-float=yes \
             --with-sysroot=$(xcrun --show-sdk-path)/ \
             --program-suffix=-10
       - name: Build GCC
