@@ -15,7 +15,7 @@ jobs:
         with:
           submodules: 'recursive' 
       - name: Install tools
-        run: brew install coreutils && mkdir install
+        run: brew install coreutils autogen && mkdir install
       - name: Build GMP without Decimal Support
         env:
           GMP_VER: 6.1.0
