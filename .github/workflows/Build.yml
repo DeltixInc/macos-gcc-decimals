@@ -26,10 +26,12 @@ jobs:
           cd gmp-$GMP_VER         
           ./configure \
             --enable-static \
+            --disable-dynamic \
             --prefix=$(grealpath ../install) \
             CC=/usr/local/bin/gcc-8 \
             CXX=/usr/local/bin/g++-8          
-          make -j && make check && make install
+          make -j && make check
+          make install
       - name: Build MPFR without Decimal Support
         env:
           MPFR_VER: 3.1.4
@@ -40,11 +42,13 @@ jobs:
           cd mpfr-$MPFR_VER         
           ./configure \
             --enable-static \
+            --disable-dynamic \
             --prefix=$(grealpath ../install) \
             --with-gmp=$(grealpath ../install) \
             CC=/usr/local/bin/gcc-8 \
             CXX=/usr/local/bin/g++-8          
-          make -j && make check && make install
+          make -j && make check
+          make install
       - name: Build MPC without Decimal Support
         env:
           MPC_VER: 1.0.3
@@ -54,11 +58,13 @@ jobs:
           cd mpc-$MPC_VER         
           ./configure \
             --enable-static \
+            --disable-dynamic \
             --prefix=$(grealpath ../install) \
             --with-gmp=$(grealpath ../install) \
             CC=/usr/local/bin/gcc-8 \
             CXX=/usr/local/bin/g++-8          
-          make -j && make check && make install
+          make -j && make check
+          make install
       - name: Build ISL without Decimal Support
         env:
           ISL_VER: 0.18
@@ -69,11 +75,13 @@ jobs:
           cd isl-$ISL_VER         
           ./configure \
             --enable-static \
+            --disable-dynamic \
             --prefix=$(grealpath ../install) \
             --with-gmp_prefix=$(grealpath ../install) \
             CC=/usr/local/bin/gcc-8 \
             CXX=/usr/local/bin/g++-8          
-          make -j && make check && make install
+          make -j && make check
+          make install
       - name: Configure GCC
         run: |
           mkdir gcc/build && cd gcc/build
@@ -81,6 +89,7 @@ jobs:
           ../configure \
             --disable-bootstrap \
             --enable-static \
+            --disable-dynamic \
             --prefix=$(grealpath ../../install) \
             --with-gmp=$(grealpath ../../install) \
             --with-mpfr=$(grealpath ../../install) \
@@ -96,7 +105,8 @@ jobs:
       - name: Build GCC
         run: |
           cd gcc/build
-          make -j && make install
+          make -j && make check
+          make install
       - name: Upload build
         uses: actions/upload-artifact@v2
         with:
