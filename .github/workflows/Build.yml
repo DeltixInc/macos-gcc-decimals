@@ -23,6 +23,7 @@ jobs:
           ./configure \
             --enable-static \
             --disable-dynamic \
+            --enable-decimal-float=yes \
             --prefix=$(grealpath ../install) \
             CC=/usr/local/bin/gcc-10 \
             CXX=/usr/local/bin/g++-10          
@@ -39,6 +40,7 @@ jobs:
           ./configure \
             --enable-static \
             --disable-dynamic \
+            --enable-decimal-float=yes \
             --prefix=$(grealpath ../install) \
             --with-gmp=$(grealpath ../install) \
             CC=/usr/local/bin/gcc-10 \
@@ -55,6 +57,7 @@ jobs:
           ./configure \
             --enable-static \
             --disable-dynamic \
+            --enable-decimal-float=yes \
             --prefix=$(grealpath ../install) \
             --with-gmp=$(grealpath ../install) \
             CC=/usr/local/bin/gcc-10 \
@@ -72,6 +75,7 @@ jobs:
           ./configure \
             --enable-static \
             --disable-dynamic \
+            --enable-decimal-float=yes \ 
             --prefix=$(grealpath ../install) \
             --with-gmp_prefix=$(grealpath ../install) \
             CC=/usr/local/bin/gcc-10 \
@@ -114,7 +118,7 @@ jobs:
             --with-isl=$(grealpath ../../install) \
             --enable-checking=release \
             --enable-languages=c,c++ \
-            --enable-decimal-float \
+            --enable-decimal-float=yes \
             --with-sysroot=$(xcrun --show-sdk-path)/ \
             --program-suffix=-10dpf \
             CC=/usr/local/bin/gcc-10 \
