@@ -6,16 +6,12 @@ on:
     branches: [master]
 
 jobs:
-  build:
-    name: Build GCC
+  build-libs:
+    name: Build required libraries
     runs-on: macos-10.15
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-        with:
-          submodules: 'recursive' 
       - name: Install tools
-        run: brew install coreutils autogen deja-gnu tcl-tk && mkdir install
+        run: brew install coreutils && mkdir install
       - name: Build GMP without Decimal Support
         env:
           GMP_VER: 6.1.0
@@ -82,6 +78,27 @@ jobs:
             CXX=/usr/local/bin/g++-10          
           make -j8 && make check
           make install
+      - name: Upload libraries
+        uses: actions/upload-artifact@v2
+        with:
+          path: install/
+          name: libraries-install
+  build:
+    name: Build GCC
+    runs-on: macos-10.15
+    needs: build-libs
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          submodules: 'recursive' 
+      - name: Install tools
+        run: brew install coreutils autogen deja-gnu tcl-tk && mkdir install
+      - name: Download libraries
+        uses: actions/download-artifact@v2
+        with:
+          name: libraries-install
+          path: install/
       - name: Configure GCC
         run: |
           mkdir gcc/build && cd gcc/build
@@ -111,9 +128,9 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           path: gcc/build/
-          name: Build
+          name: build-gcc
       - name: Upload install
         uses: actions/upload-artifact@v2
         with:
           path: install/
-          name: Install
+          name: install-gcc
