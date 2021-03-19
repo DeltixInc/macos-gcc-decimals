@@ -8,11 +8,11 @@ on:
 jobs:
   build-libs:
     name: Build required libraries
-    runs-on: macos-10.15
+    runs-on: ubuntu-latest
     steps:
-      - name: Install tools
-        run: brew install coreutils && mkdir install
-      - name: Build GMP without Decimal Support
+      - name: Make install dir
+        run: mkdir install
+      - name: Build GMP
         env:
           GMP_VER: 6.1.0
         run: |
@@ -23,13 +23,10 @@ jobs:
           ./configure \
             --enable-static \
             --disable-dynamic \
-            --enable-decimal-float=yes \
-            --prefix=$(grealpath ../install) \
-            CC=/usr/local/bin/gcc-10 \
-            CXX=/usr/local/bin/g++-10          
+            --prefix=$(realpath ../install)
           make -j8 && make check
           make install
-      - name: Build MPFR without Decimal Support
+      - name: Build MPFR
         env:
           MPFR_VER: 3.1.4
         run: |
@@ -40,14 +37,12 @@ jobs:
           ./configure \
             --enable-static \
             --disable-dynamic \
-            --enable-decimal-float=yes \
-            --prefix=$(grealpath ../install) \
-            --with-gmp=$(grealpath ../install) \
-            CC=/usr/local/bin/gcc-10 \
-            CXX=/usr/local/bin/g++-10          
+            --enable-decimal-float \
+            --prefix=$(realpath ../install) \
+            --with-gmp-build=$(realpath ../install)     
           make -j8 && make check
           make install
-      - name: Build MPC without Decimal Support
+      - name: Build MPC
         env:
           MPC_VER: 1.0.3
         run: |
@@ -58,13 +53,11 @@ jobs:
             --enable-static \
             --disable-dynamic \
             --enable-decimal-float=yes \
-            --prefix=$(grealpath ../install) \
-            --with-gmp=$(grealpath ../install) \
-            CC=/usr/local/bin/gcc-10 \
-            CXX=/usr/local/bin/g++-10          
+            --prefix=$(realpath ../install) \
+            --with-gmp=$(realpath ../install)   
           make -j8 && make check
           make install
-      - name: Build ISL without Decimal Support
+      - name: Build ISL
         env:
           ISL_VER: 0.18
         run: |
@@ -76,10 +69,8 @@ jobs:
             --enable-static \
             --disable-dynamic \
             --enable-decimal-float=yes \ 
-            --prefix=$(grealpath ../install) \
-            --with-gmp_prefix=$(grealpath ../install) \
-            CC=/usr/local/bin/gcc-10 \
-            CXX=/usr/local/bin/g++-10          
+            --prefix=$(realpath ../install) \
+            --with-gmp_prefix=$(realpath ../install)   
           make -j8 && make check
           make install
       - name: Upload libraries
