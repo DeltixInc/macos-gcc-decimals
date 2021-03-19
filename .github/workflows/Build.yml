@@ -122,7 +122,7 @@ jobs:
       - name: Build GCC
         run: |
           cd gcc/build
-          make -j8 && make -k check
+          make -j8
           make install
       - name: Upload build
         uses: actions/upload-artifact@v2
