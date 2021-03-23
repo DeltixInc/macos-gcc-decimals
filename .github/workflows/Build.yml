@@ -6,118 +6,119 @@ on:
     branches: [master]
 
 jobs:
-  build-libs:
-    name: Build required libraries
-    runs-on: ubuntu-latest
-    steps:
-      - name: Make install dir
-        run: mkdir install
-      - name: Build GMP
-        env:
-          GMP_VER: 6.1.0
-        run: |
-          wget http://gcc.gnu.org/pub/gcc/infrastructure/gmp-$GMP_VER.tar.bz2
-          bunzip2 gmp-$GMP_VER.tar.bz2
-          tar xvf gmp-$GMP_VER.tar
-          cd gmp-$GMP_VER         
-          ./configure \
-            --enable-static \
-            --disable-dynamic \
-            --prefix=$(realpath ../install)
-          make -j8 && make check
-          make install
-      - name: Build MPFR
-        env:
-          MPFR_VER: 3.1.4
-        run: |
-          wget http://gcc.gnu.org/pub/gcc/infrastructure/mpfr-$MPFR_VER.tar.bz2
-          bunzip2 mpfr-$MPFR_VER.tar.bz2
-          tar xvf mpfr-$MPFR_VER.tar
-          cd mpfr-$MPFR_VER         
-          ./configure \
-            --enable-static \
-            --disable-dynamic \
-            --enable-decimal-float \
-            --prefix=$(realpath ../install) \
-            --with-gmp-build=$(realpath ../install)     
-          make -j8 && make check
-          make install
-      - name: Build MPC
-        env:
-          MPC_VER: 1.0.3
-        run: |
-          wget http://gcc.gnu.org/pub/gcc/infrastructure/mpc-$MPC_VER.tar.gz
-          tar zxvf mpc-$MPC_VER.tar.gz
-          cd mpc-$MPC_VER         
-          ./configure \
-            --enable-static \
-            --disable-dynamic \
-            --enable-decimal-float=yes \
-            --prefix=$(realpath ../install) \
-            --with-gmp=$(realpath ../install)   
-          make -j8 && make check
-          make install
-      - name: Build ISL
-        env:
-          ISL_VER: 0.18
-        run: |
-          wget http://gcc.gnu.org/pub/gcc/infrastructure/isl-$ISL_VER.tar.bz2
-          bunzip2 isl-$ISL_VER.tar.bz2
-          tar xvf isl-$ISL_VER.tar
-          cd isl-$ISL_VER         
-          ./configure \
-            --enable-static \
-            --disable-dynamic \
-            --enable-decimal-float=yes \ 
-            --prefix=$(realpath ../install) \
-            --with-gmp_prefix=$(realpath ../install)   
-          make -j8 && make check
-          make install
-      - name: Upload libraries
-        uses: actions/upload-artifact@v2
-        with:
-          path: install/
-          name: libraries-install
+  # build-libs:
+  #   name: Build required libraries
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Make install dir
+  #       run: mkdir install
+  #     - name: Build GMP
+  #       env:
+  #         GMP_VER: 6.1.0
+  #       run: |
+  #         wget http://gcc.gnu.org/pub/gcc/infrastructure/gmp-$GMP_VER.tar.bz2
+  #         bunzip2 gmp-$GMP_VER.tar.bz2
+  #         tar xvf gmp-$GMP_VER.tar
+  #         cd gmp-$GMP_VER         
+  #         ./configure \
+  #           --enable-static \
+  #           --disable-dynamic \
+  #           --prefix=$(realpath ../install)
+  #         make -j8 && make check
+  #         make install
+  #     - name: Build MPFR
+  #       env:
+  #         MPFR_VER: 3.1.4
+  #       run: |
+  #         wget http://gcc.gnu.org/pub/gcc/infrastructure/mpfr-$MPFR_VER.tar.bz2
+  #         bunzip2 mpfr-$MPFR_VER.tar.bz2
+  #         tar xvf mpfr-$MPFR_VER.tar
+  #         cd mpfr-$MPFR_VER         
+  #         ./configure \
+  #           --enable-static \
+  #           --disable-dynamic \
+  #           --enable-decimal-float \
+  #           --prefix=$(realpath ../install) \
+  #           --with-gmp-build=$(realpath ../install)     
+  #         make -j8 && make check
+  #         make install
+  #     - name: Build MPC
+  #       env:
+  #         MPC_VER: 1.0.3
+  #       run: |
+  #         wget http://gcc.gnu.org/pub/gcc/infrastructure/mpc-$MPC_VER.tar.gz
+  #         tar zxvf mpc-$MPC_VER.tar.gz
+  #         cd mpc-$MPC_VER         
+  #         ./configure \
+  #           --enable-static \
+  #           --disable-dynamic \
+  #           --enable-decimal-float=yes \
+  #           --prefix=$(realpath ../install) \
+  #           --with-gmp=$(realpath ../install)   
+  #         make -j8 && make check
+  #         make install
+  #     - name: Build ISL
+  #       env:
+  #         ISL_VER: 0.18
+  #       run: |
+  #         wget http://gcc.gnu.org/pub/gcc/infrastructure/isl-$ISL_VER.tar.bz2
+  #         bunzip2 isl-$ISL_VER.tar.bz2
+  #         tar xvf isl-$ISL_VER.tar
+  #         cd isl-$ISL_VER         
+  #         ./configure \
+  #           --enable-static \
+  #           --disable-dynamic \
+  #           --enable-decimal-float=yes \ 
+  #           --prefix=$(realpath ../install) \
+  #           --with-gmp_prefix=$(realpath ../install)   
+  #         make -j8 && make check
+  #         make install
+  #     - name: Upload libraries
+  #       uses: actions/upload-artifact@v2
+  #       with:
+  #         path: install/
+  #         name: libraries-install/
   build:
     name: Build GCC
     runs-on: macos-10.15
-    needs: build-libs
+    # needs: build-libs
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
         with:
           submodules: 'recursive' 
       - name: Install tools
-        run: brew install coreutils autogen deja-gnu tcl-tk && mkdir install
-      - name: Download libraries
-        uses: actions/download-artifact@v2
-        with:
-          name: libraries-install
-          path: install/
+        run: brew install coreutils autogen deja-gnu tcl-tk gmp && mkdir install
+      # - name: Download libraries
+      #   uses: actions/download-artifact@v2
+      #   with:
+      #     name: libraries-install
+      #     path: install/
+      - name: Download pre-requisites
+        run: cd gcc && ./contrib/download_prerequisites
       - name: Configure GCC
+        env:
+          DFP_ENABLE: 1
         run: |
           mkdir gcc/build && cd gcc/build
-          echo "DFP_ENABLE = 1" >> ../libgcc/Makefile.in
           ../configure \
             --disable-bootstrap \
             --enable-static \
             --disable-dynamic \
             --prefix=$(grealpath ../../install) \
-            --with-gmp=$(grealpath ../../install) \
-            --with-mpfr=$(grealpath ../../install) \
-            --with-mpc_=$(grealpath ../../install) \
-            --with-isl=$(grealpath ../../install) \
+            --with-backend=libdecnumber \
             --enable-checking=release \
             --enable-languages=c,c++ \
             --enable-decimal-float=yes \
             --with-sysroot=$(xcrun --show-sdk-path)/ \
             --program-suffix=-10dpf \
             CC=/usr/local/bin/gcc-10 \
-            CXX=/usr/local/bin/g++-10
+            CXX=/usr/local/bin/g++-10 \
+            DFP_ENABLE=1
       - name: Build GCC
         run: |
           cd gcc/build
-          make -j8
+          make -j1
           make install
       - name: Upload build
         uses: actions/upload-artifact@v2
